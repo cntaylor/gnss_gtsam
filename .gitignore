@@ -1,0 +1,5 @@
+.vscode/
+.devcontainer/
+# Old code I am copying stuff from...
+PseudoRangeFactor*
+desktop.ini
