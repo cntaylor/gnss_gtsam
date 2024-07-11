@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace gnss-gtsam {
+namespace gnss_gtsam {
 
     namespace prange{ 
         double time_divider=1E6;
@@ -73,4 +73,4 @@ Vector sc_PseudoRange::evaluateError(const Vector4& p, const double& sc,
 }
 
 
-} //namespace gnss-gtsam
+} //namespace gnss_gtsam

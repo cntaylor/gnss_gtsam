@@ -1,0 +1,36 @@
+import os
+from setuptools import setup, find_packages
+
+packages = find_packages()
+
+package_data = {
+    package: [
+        f
+        for f in os.listdir(package.replace(".", os.path.sep))
+        if os.path.splitext(f)[1] in (".so", ".pyd")
+    ]
+    for package in packages
+}
+
+
+setup(
+   name='${PROJECT_NAME}',
+   version='0.1',
+   description='Some functions to do GNSS localization and optimization using GTSAM',
+   author='Clark Taylor',
+   author_email='clark.n.taylor@gmail.com',
+   keywords = "GNSS, GTSAM, factor graphs, positioning",
+   packages=packages,  
+
+   # Grab the shared object files...
+   package_data = package_data,
+   include_package_data = True,
+
+   # Ensure that the compiled .so file is properly packaged
+   zip_safe=False,
+   platforms="any",
+
+   # external packages 
+   # install_requires=['gtsam','numpy'] #external packages as dependencies
+   
+)

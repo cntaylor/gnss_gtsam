@@ -8,15 +8,21 @@
 #pragma once
 #include <gtsam/nonlinear/NonlinearFactor.h>
 
-namespace gnss-gtsam {
+namespace gnss_gtsam {
+
+// using gtsam::Vector4, gtsam::Vector3, gtsam::Vector, gtsam::Vector1;
+// using gtsam::OptionalMatrixType, gtsam::SharedNoiseModel;
+// using gtsam::NoiseModelFactor1, gtsam::NoiseModelFactor2;
+// using gtsam::Key;
+using namespace gtsam;
 
 /* In the future, should really make this more robust, but for now
 just assume the values are a vector5, where the first 3 are the ECEF location
 and the fourth is the clock error */
 
-class GTSAM_EXPORT PseudoRange : public NoiseModelFactor1<Vector5> {
+class GTSAM_EXPORT PseudoRange : public NoiseModelFactor1<Vector4> {
   private:
-    typedef NoiseModelFactor1<Vector4> Base;
+    typedef gtsam::NoiseModelFactor1<Vector4> Base;
     Vector3 sat_pos_ = Vector3::Zero();
     double prange_meas_ = 0.;
 
@@ -34,7 +40,7 @@ class GTSAM_EXPORT PseudoRange : public NoiseModelFactor1<Vector5> {
 //Implement PseudoRange, but with a switchable constraint
 class GTSAM_EXPORT sc_PseudoRange : public NoiseModelFactor2<Vector4, double> {
   private:
-    typedef NoiseModelFactor2<Vector4,double> Base;
+    typedef gtsam::NoiseModelFactor2<Vector4,double> Base;
     Vector3 sat_pos_ = Vector3::Zero();
     double prange_meas_ = 0.;
 
