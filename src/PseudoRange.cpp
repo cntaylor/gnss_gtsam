@@ -47,7 +47,7 @@ namespace gnss_gtsam {
     }
 
 
-    Vector PseudoRange::evaluateError(const Vector4& p, 
+    Vector PseudoRange::evaluateError(const Vector5& p, 
                                             OptionalMatrixType H) const {
         Vector3 diff_loc = compute_diff_loc(p.head<3>(), sat_pos_);
 
@@ -68,7 +68,7 @@ namespace gnss_gtsam {
         return err;
     }
 
-    Vector sc_PseudoRange::evaluateError(const Vector4& p, const double& sc,
+    Vector sc_PseudoRange::evaluateError(const Vector5& p, const double& sc,
                                             OptionalMatrixType H_p,
                                             OptionalMatrixType H_sc) const {
         Vector3 diff_loc = compute_diff_loc(p.head<3>(), sat_pos_);

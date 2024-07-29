@@ -20,9 +20,9 @@ using namespace gtsam;
 just assume the values are a vector5, where the first 3 are the ECEF location
 and the fourth is the clock error */
 
-class GTSAM_EXPORT PseudoRange : public NoiseModelFactor1<Vector4> {
+class GTSAM_EXPORT PseudoRange : public NoiseModelFactor1<Vector5> {
   private:
-    typedef gtsam::NoiseModelFactor1<Vector4> Base;
+    typedef gtsam::NoiseModelFactor1<Vector5> Base;
     Vector3 sat_pos_ = Vector3::Zero();
     double prange_meas_ = 0.;
 
@@ -31,16 +31,16 @@ class GTSAM_EXPORT PseudoRange : public NoiseModelFactor1<Vector4> {
                 const Vector3& sat_pos, const SharedNoiseModel& model)
         : Base(model, key), sat_pos_(sat_pos), prange_meas_(prange_meas) {}
     
-    Vector evaluateError(const Vector4& p, 
+    Vector evaluateError(const Vector5& p, 
                          OptionalMatrixType H ) const override;
 
 
 };
 
 //Implement PseudoRange, but with a switchable constraint
-class GTSAM_EXPORT sc_PseudoRange : public NoiseModelFactor2<Vector4, double> {
+class GTSAM_EXPORT sc_PseudoRange : public NoiseModelFactor2<Vector5, double> {
   private:
-    typedef gtsam::NoiseModelFactor2<Vector4,double> Base;
+    typedef gtsam::NoiseModelFactor2<Vector5,double> Base;
     Vector3 sat_pos_ = Vector3::Zero();
     double prange_meas_ = 0.;
 
@@ -50,7 +50,7 @@ class GTSAM_EXPORT sc_PseudoRange : public NoiseModelFactor2<Vector4, double> {
                       const Vector3& sat_pos, const SharedNoiseModel& model)
         : Base(model, pos_key, sc_key), sat_pos_(sat_pos), prange_meas_(prange_meas) {}
     
-    Vector evaluateError(const Vector4& p, const double& sc, 
+    Vector evaluateError(const Vector5& p, const double& sc, 
                          OptionalMatrixType H_p,
                          OptionalMatrixType H_sc ) const override;
 
