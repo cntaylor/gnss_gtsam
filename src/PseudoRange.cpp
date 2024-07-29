@@ -11,27 +11,38 @@ using namespace std;
 
 namespace gnss_gtsam {
 
-    double time_divider=1E6;
-    double c = 2.99792458E8; // m/s, speed of light
-    double c_small = c/time_divider; // speed of light in smaller time units (to make solving more numerically stable)
-    double sc_epsilon = 1E-5; // Used to make square root derivatives not blow up
-    double earth_rot_rate = 7.292115E-5; // rad/s, earth rotation rate
+    namespace prange {
+        double time_divider=1E6;
+        double c = 2.99792458E8; // m/s, speed of light
+        double c_small = c/time_divider; // speed of light in smaller time units (to make solving more numerically stable)
+        double sc_epsilon = 1E-5; // Used to make square root derivatives not blow up
+        double earth_rot_rate = 7.292115E-5; // rad/s, earth rotation rate
+    }
 
-    Vector3 compute_diff_loc(Vector3 rec_pos, Vector3 sat_pos) const {
-        /* Assume sat_pos was in the ECEF of the time it was transmitted, while it really 
-            needs to be in ECEF at the time it was received. Make that correction*/
-
+    /**
+     * @brief Compute the difference in location between the receiver and the satellite 
+     *        at the time it was received.
+     * @param rec_pos Receiver position in ECEF coordinates.
+     * @param sat_pos Satellite position in ECEF coordinates at the time it was transmitted.
+     * @return Difference in location between the receiver and the satellite.
+     * @note This function assumes that the satellite position was in the ECEF of the time 
+     *       it was transmitted, while it really needs to be in ECEF at the time it was 
+     *       received. It makes that correction.
+     */
+    Vector3 compute_diff_loc(Vector3 rec_pos, Vector3 sat_pos) {
+        // Compute the time it took for the signal to travel from the satellite to the receiver
         double time_transmit = (rec_pos - sat_pos).norm() / prange::c;
-        double rot_during_trans = prange::earth_rot_rate * time_transmit;
-        
-        ////// This is the full code, but angles are small enough that we use the approximation below..
-        // // Earth rotates about Z axis.  and earth rotation vector is...
-        // double srot = sin(rot_during_trans);
-        // double crot = cos(rot_during_trans);
-        // // Note the + and - location.  This is a coordinate frame rotation, not object rotation...
-        // Vector3 new_sat_loc = Vector3(crot*sat_pos[0] + srot*sat_pos[1], srot*sat_pos[0] - crot*sat_pos[1], sat_pos[2]);
-        Vector3 new_sat_loc = Vector3(sat_pos[0] + rot_during_trans*sat_pos[1], sat_pos[1] - rot_during_trans*sat_pos[0], sat_pos[2]);
 
+        // Compute the amount of earth rotation during transmission
+        double rot_during_trans = prange::earth_rot_rate * time_transmit;
+
+        // Compute the corrected satellite position at the time it was received
+        // Note: The commented code below is a full implementation using trigonometric functions.
+        //       Since the angles are small, we use the approximation below to avoid numerical issues.
+        // Vector3 new_sat_loc = Vector3(crot*sat_pos[0] + srot*sat_pos[1], srot*sat_pos[0] - crot*sat_pos[1], sat_pos[2]);
+        Vector3 new_sat_loc = sat_pos + rot_during_trans * Vector3(sat_pos[1], -sat_pos[0], 0.0);
+
+        // Compute the difference in location between the receiver and the corrected satellite position
         return rec_pos - new_sat_loc;
     }
 
@@ -61,8 +72,6 @@ namespace gnss_gtsam {
                                             OptionalMatrixType H_p,
                                             OptionalMatrixType H_sc) const {
         Vector3 diff_loc = compute_diff_loc(p.head<3>(), sat_pos_);
-        new_sat_loc = correctRot(diff_loc / c, sat_pos_);
-        diff_loc = p.head<3>() - new_sat_loc;
 
         double uw_error = diff_loc.norm() + p[3]*prange::c_small - prange_meas_; // unweighted error
         auto normed_diff = diff_loc/diff_loc.norm();
